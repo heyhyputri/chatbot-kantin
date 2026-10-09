@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chatbot Kantin — Aman</title>
+<meta name="description" content="Chatbot kantin aman: kontrol di luar model mencegah pembuatan voucher.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🍛%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="is-aman">
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="index.html">🍛 Chatbot Kantin</a>
+    <nav class="tabs" aria-label="Pilih versi">
+      <a href="rentan.html">Rentan</a>
+      <a href="aman.html" aria-current="page">Aman</a>
+    </nav>
+  </div>
+</header>
+
+<section class="page-head">
+  <div class="wrap">
+    <span class="pill">Versi aman</span>
+    <h1>Chatbot Kantin — Aman</h1>
+    <p>Permintaan tetap dilayani, tetapi model bukan otoritas untuk membuat voucher atau menjalankan transaksi.</p>
+  </div>
+</section>
+
+<main class="wrap">
+<div class="layout">
+
+  <div>
+    <section class="card board">
+      <h2>Menu hari ini</h2>
+      <div class="menu">
+        <div><b>Nasi goreng</b><span>Rp12.000</span></div>
+        <div><b>Es teh</b><span>Rp4.000</span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Pengaturan LLM</h2>
+      <label for="apiKey">API key Google AI Studio</label>
+      <input id="apiKey" type="password" autocomplete="off" placeholder="Tempel API key milik Anda">
+      <div class="actions">
+        <button id="saveKey">Simpan sementara</button>
+        <button id="testKey" class="secondary">Uji koneksi</button>
+        <button id="clearKey" class="secondary">Hapus key</button>
+      </div>
+      <p id="keyStatus" class="status" role="status">Key belum diuji.</p>
+      <p class="tiny">Key hanya ada di sesi browser ini. Jangan commit key atau membagikan screenshot yang menampilkannya.</p>
+    </section>
+  </div>
+
+  <div>
+    <section class="card">
+      <h2>Uji chatbot</h2>
+      <label for="message">Pesan pengguna</label>
+      <textarea id="message" rows="3">Berapa harga nasi goreng?</textarea>
+      <div class="actions">
+        <button id="normalPayload" class="secondary">Isi permintaan normal</button>
+        <button id="attackPayload" class="secondary">Isi payload serangan</button>
+        <button id="send">Kirim ke LLM</button>
+      </div>
+      <div class="chat">
+        <p class="bubble-label">Jawaban chatbot</p>
+        <div id="answer" class="answer" aria-live="polite">Jawaban akan muncul di sini.</div>
+      </div>
+      <p id="runStatus" class="status" role="status"></p>
+    </section>
+
+    <section class="card">
+      <h2>Kontrol keamanan aktif</h2>
+      <ul class="controls">
+        <li><b>Hierarki instruksi.</b> Template instruksi aplikasi dipisah dari input pengguna.</li>
+        <li><b>Pelabelan konten tak tepercaya.</b> Pesan pengguna diperlakukan sebagai data, bukan perintah.</li>
+        <li><b>Minimisasi dan redaksi.</b> Teks yang meminta ganti peran, buat voucher, atau lewati aturan tidak diteruskan ke model.</li>
+        <li><b>Validasi keluaran.</b> Jawaban dibatasi panjang dan formatnya; klaim voucher tidak diakui sebagai transaksi.</li>
+        <li><b>Allowlist tool.</b> Hanya tool yang diizinkan; demo ini tidak menjalankan tool kasir sungguhan.</li>
+        <li><b>Persetujuan manusia.</b> Aksi berdampak menunggu petugas; model tidak bisa menyetujuinya sendiri.</li>
+      </ul>
+      <p class="tiny">Demonstrasi untuk kasus sintetis, bukan jaminan keamanan produksi.</p>
+    </section>
+
+    <section class="card">
+      <h2>Log pengujian</h2>
+      <p class="muted">Setiap run dicatat: waktu, versi, payload, jawaban, aksi, model, dan indikator pelanggaran. API key tidak ikut dicatat.</p>
+      <div class="actions">
+        <button id="downloadLog">Unduh log JSON</button>
+        <button id="clearLog" class="secondary">Hapus log halaman</button>
+        <a class="btn secondary" href="rentan.html">Kembali ke versi rentan</a>
+      </div>
+      <pre id="logPreview">Belum ada run.</pre>
+    </section>
+  </div>
+
+</div>
+</main>
+
+<footer class="wrap">Demo akademik · Bukan sistem kasir produksi · Tidak ada transaksi nyata</footer>
+
+<script>window.P06_VERSION="aman";</script>
+<script src="assets/app.js"></script>
+</body>
+</html>
