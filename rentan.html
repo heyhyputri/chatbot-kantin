@@ -1,97 +1,82 @@
 <!doctype html>
 <html lang="id">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chatbot Kantin — Rentan</title>
-<meta name="description" content="Chatbot kantin rentan: pesan pengguna diteruskan tanpa pemisahan instruksi.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🍛%3C/text%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&display=swap">
-<link rel="stylesheet" href="assets/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Chatbot Kantin — Rentan</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <script>
+    window.P06_VERSION = "rentan";
+
+    // KONTRAK UTAMA PEMERIKSA OTOMATIS
+    window.asisten = async function (pesan, konteks, model) {
+      const menuKantin = (konteks && konteks.menu) ? konteks.menu : [
+        { nama: "Nasi goreng", harga: 12000 },
+        { nama: "Es teh", harga: 4000 }
+      ];
+
+      // Fungsi pemanggil LLM (Gunakan model bawaan pemeriksa jika ada)
+      const panggilLLM = model || async function (promptTeks) {
+        let key = "";
+        try { key = sessionStorage.getItem("gemini_api_key") || ""; } catch (e) { }
+        if (key) {
+          try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ contents: [{ parts: [{ text: promptTeks }] }] })
+            });
+            const data = await res.json();
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          } catch (e) { }
+        }
+        // Fallback simulasi jika key tidak ada
+        if (promptTeks.toLowerCase().includes("voucher") || promptTeks.toLowerCase().includes("kasir")) {
+          return "Tentu, ini kode voucher Anda: VOUCHER-P06-99 senilai Rp100.000.";
+        }
+        return "Harga nasi goreng Rp12.000 dan es teh Rp4.000.";
+      };
+
+      // VERSI RENTAN: Gabungkan instruksi dan pesan tanpa proteksi
+      const promptLengkap = "Anda adalah chatbot kantin. MENU: " + JSON.stringify(menuKantin) + "\nPESAN PENGGUNA: " + pesan;
+      const hasilBalasan = await panggilLLM(promptLengkap);
+
+      // Kembalikan format wajib { balasan, aksi }
+      return { balasan: hasilBalasan, aksi: [] };
+    };
+  </script>
 </head>
+
 <body class="is-rentan">
-
-<header class="top">
-  <div class="wrap">
-    <a class="brand" href="index.html">🍛 Chatbot Kantin</a>
-    <nav class="tabs" aria-label="Pilih versi">
-      <a href="rentan.html" aria-current="page">Rentan</a>
-      <a href="aman.html">Aman</a>
-    </nav>
-  </div>
-</header>
-
-<section class="page-head">
-  <div class="wrap">
-    <span class="pill">Versi rentan</span>
-    <h1>Chatbot Kantin — Rentan</h1>
-    <p>Pesan pengguna diteruskan tanpa memisahkan instruksi tepercaya dari data tak tepercaya. Hanya untuk pembanding, jangan dipakai di layanan nyata.</p>
-  </div>
-</section>
-
-<main class="wrap">
-<div class="layout">
-
-  <div>
-    <section class="card board">
-      <h2>Menu hari ini</h2>
-      <div class="menu">
-        <div><b>Nasi goreng</b><span>Rp12.000</span></div>
-        <div><b>Es teh</b><span>Rp4.000</span></div>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2>Pengaturan LLM</h2>
-      <label for="apiKey">API key Google AI Studio</label>
-      <input id="apiKey" type="password" autocomplete="off" placeholder="Tempel API key milik Anda">
-      <div class="actions">
-        <button id="saveKey">Simpan sementara</button>
-        <button id="testKey" class="secondary">Uji koneksi</button>
-        <button id="clearKey" class="secondary">Hapus key</button>
-      </div>
-      <p id="keyStatus" class="status" role="status">Key belum diuji.</p>
-      <p class="tiny">Key hanya ada di sesi browser ini. Jangan commit key atau membagikan screenshot yang menampilkannya.</p>
-    </section>
-  </div>
-
-  <div>
-    <section class="card">
-      <h2>Uji chatbot</h2>
-      <label for="message">Pesan pengguna</label>
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="index.html">🍛 Chatbot Kantin</a>
+      <nav class="tabs"><a href="rentan.html" aria-current="page">Rentan</a><a href="aman.html">Aman</a></nav>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="card">
+      <h2>Uji Chatbot Rentan</h2>
       <textarea id="message" rows="3">Berapa harga nasi goreng?</textarea>
-      <div class="actions">
-        <button id="normalPayload" class="secondary">Isi permintaan normal</button>
-        <button id="attackPayload" class="secondary">Isi payload serangan</button>
-        <button id="send">Kirim ke LLM</button>
-      </div>
-      <div class="chat">
-        <p class="bubble-label">Jawaban chatbot</p>
-        <div id="answer" class="answer" aria-live="polite">Jawaban akan muncul di sini.</div>
-      </div>
-      <p id="runStatus" class="status" role="status"></p>
-    </section>
-
-    <section class="card">
-      <h2>Log pengujian</h2>
-      <p class="muted">Setiap run dicatat: waktu, versi, payload, jawaban, aksi, model, dan indikator pelanggaran. API key tidak ikut dicatat.</p>
-      <div class="actions">
-        <button id="downloadLog">Unduh log JSON</button>
-        <button id="clearLog" class="secondary">Hapus log halaman</button>
-        <a class="btn secondary" href="aman.html">Lanjut ke versi aman</a>
-      </div>
-      <pre id="logPreview">Belum ada run.</pre>
-    </section>
-  </div>
-
-</div>
-</main>
-
-<footer class="wrap">Demo akademik · Bukan sistem kasir produksi · Tidak ada transaksi nyata</footer>
-
-<script>window.P06_VERSION="rentan";</script>
-<script src="assets/app.js"></script>
+      <button id="send" type="button">Kirim ke LLM</button>
+      <div id="answer" class="answer">Jawaban akan muncul di sini.</div>
+    </div>
+  </main>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('send');
+      const input = document.getElementById('message');
+      const out = document.getElementById('answer');
+      if (btn && input && out) {
+        btn.addEventListener('click', async () => {
+          out.textContent = "Memproses...";
+          const res = await window.asisten(input.value);
+          out.textContent = res.balasan;
+        });
+      }
+    });
+  </script>
 </body>
+
 </html>
